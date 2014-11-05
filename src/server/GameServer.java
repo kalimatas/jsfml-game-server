@@ -1,12 +1,13 @@
 package server;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 public class GameServer {
     public static final int PORT = 4444;
     private static final Logger LOGGER = Logger.getLogger(GameServer.class.getName());
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
         int mode = 1;
         if (args.length == 1) {
             try {
@@ -16,15 +17,14 @@ public class GameServer {
             }
         }
 
-        switch (mode) {
-            case 1:
-                //gs.client();
-                break;
-            case 2:
-                //gs.server();
-                break;
-            default:
-                throw new RuntimeException("unknown mode");
+        // Start server
+        if (mode == 2) {
+            new Server();
         }
+
+        // Start client
+
+
+        // Create window and run application
     }
 }
