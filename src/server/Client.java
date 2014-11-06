@@ -2,7 +2,9 @@ package server;
 
 import org.jsfml.system.Clock;
 import org.jsfml.system.Time;
+import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.Event;
+import org.jsfml.window.event.KeyEvent;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -77,8 +79,22 @@ public class Client {
         }
     }
 
-    public void handleEvent(Event event) {
+    public void handleEvent(Event event) throws IOException {
+        if (isConnected && (event.type == Event.Type.KEY_PRESSED)) {
+            KeyEvent keyEvent = event.asKeyEvent();
 
+            if (keyEvent.key == Keyboard.Key.SPACE) {
+                Packet spacePacket = new Packet();
+                spacePacket.append(PacketType.SPACE_BUTTON);
+                PacketReaderWriter.send(socketChannel, spacePacket);
+            }
+
+            if (keyEvent.key == Keyboard.Key.M) {
+                Packet mPacket = new Packet();
+                mPacket.append(PacketType.M_BUTTON);
+                PacketReaderWriter.send(socketChannel, mPacket);
+            }
+        }
     }
 
     private void handleIncomingPacket(PacketType packetType, Packet packet) {
@@ -86,6 +102,7 @@ public class Client {
 
         switch (packetType) {
             case BROADCAST_MESSAGE:
+                LOGGER.info("got broadcast message: " + packet.get());
                 break;
         }
     }
