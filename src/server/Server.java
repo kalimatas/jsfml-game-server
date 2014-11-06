@@ -101,14 +101,15 @@ public class Server extends Thread {
     private void handleIncomingPacket(Packet packet, SocketChannel channel) {
         PacketType packetType = (PacketType) packet.get();
 
-        LOGGER.info("handling packet: " + packetType);
-
         switch (packetType) {
             case INTERVAL_UPDATE:
+                LOGGER.info("handling interval packet: " + (int) packet.get());
                 break;
             case SPACE_BUTTON:
+                LOGGER.info("handling SPACE button");
                 break;
             case M_BUTTON:
+                LOGGER.info("handling M button");
                 break;
         }
     }
