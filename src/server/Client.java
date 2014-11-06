@@ -1,5 +1,9 @@
 package server;
 
+import org.jsfml.system.Clock;
+import org.jsfml.system.Time;
+import org.jsfml.window.event.Event;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -15,45 +19,66 @@ public class Client {
 
     private SocketChannel socketChannel;
     private Selector readSelector;
+    private Clock tickClock = new Clock();
 
-    void client() {
+    public Client() throws IOException {
         LOGGER.info("starting client");
 
-        try {
-            socketChannel = SocketChannel.open(new InetSocketAddress(InetAddress.getLoopbackAddress(), GameServer.PORT));
-            socketChannel.configureBlocking(false);
+        socketChannel = SocketChannel.open(new InetSocketAddress(InetAddress.getLoopbackAddress(), GameServer.PORT));
+        socketChannel.configureBlocking(false);
 
-            readSelector = Selector.open();
-            socketChannel.register(readSelector, SelectionKey.OP_READ);
+        readSelector = Selector.open();
+        socketChannel.register(readSelector, SelectionKey.OP_READ);
+    }
 
-            for (;;) {
-                readSelector.selectNow();
+    public void update(Time dt) throws IOException {
+        readSelector.selectNow();
 
-                Set<SelectionKey> readKeys = readSelector.selectedKeys();
-                Iterator<SelectionKey> it = readKeys.iterator();
+        Set<SelectionKey> readKeys = readSelector.selectedKeys();
+        Iterator<SelectionKey> it = readKeys.iterator();
 
-                while (it.hasNext()) {
-                    SelectionKey key = it.next();
-                    it.remove();
+        while (it.hasNext()) {
+            SelectionKey key = it.next();
+            it.remove();
 
-                    SocketChannel channel = (SocketChannel) key.channel();
+            SocketChannel channel = (SocketChannel) key.channel();
 
-                    //Packet packet = readPacket(channel);
-                    Packet packet = null;
-                    if (packet != null && packet.size() > 0) {
-                        // On the client you should know the structrue of the packet
-                        LOGGER.info((String) packet.get());
-                    }
-                }
-
-                Thread.sleep(200);
+            Packet packet = null;
+            try {
+                packet = PacketReaderWriter.receive(channel);
+            } catch (NothingToReadException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-        } catch (IOException e) {
-            LOGGER.severe("cannot connect to server");
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            if (packet != null) {
+                PacketType packetType = (PacketType) packet.get();
+                handleIncomingPacket(packetType, packet);
+            }
+        }
+
+        if (tickClock.getElapsedTime().compareTo(Time.getSeconds(1.f / 20.f)) > 0) {
+            Packet intervalUpdatePacket = new Packet();
+            intervalUpdatePacket.append(PacketType.INTERVAL_UPDATE);
+            intervalUpdatePacket.append(42);
+
+            PacketReaderWriter.send(socketChannel, intervalUpdatePacket);
+
+            tickClock.restart();
+        }
+    }
+
+    public void handleEvent(Event event) {
+
+    }
+
+    private void handleIncomingPacket(PacketType packetType, Packet packet) {
+        LOGGER.info("handling packet: " + packetType);
+
+        switch (packetType) {
+            case BROADCAST_MESSAGE:
+                break;
         }
     }
 }

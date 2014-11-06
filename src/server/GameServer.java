@@ -23,7 +23,7 @@ public class GameServer {
         }
 
         // Start client
-
+        Client client = new Client();
 
         // Create window and run application
     }

@@ -101,6 +101,8 @@ public class Server extends Thread {
     private void handleIncomingPacket(Packet packet, SocketChannel channel) {
         PacketType packetType = (PacketType) packet.get();
 
+        LOGGER.info("handling packet: " + packetType);
+
         switch (packetType) {
             case INTERVAL_UPDATE:
                 break;
