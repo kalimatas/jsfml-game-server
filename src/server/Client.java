@@ -37,7 +37,7 @@ public class Client {
         if (!isConnected) return;
 
         if (tickClock.getElapsedTime().compareTo(Time.getSeconds(1.f / 20.f)) > 0) {
-            LOGGER.info("client interval update: " + intervalCounter);
+            //LOGGER.info("client interval update: " + intervalCounter);
 
             Packet intervalUpdatePacket = new Packet();
             intervalUpdatePacket.append(PacketType.INTERVAL_UPDATE);
@@ -51,16 +51,17 @@ public class Client {
 
     public void handleEvent(Event event) throws IOException {
         if (isConnected && (event.type == Event.Type.KEY_PRESSED)) {
-            LOGGER.info("handle key press");
             KeyEvent keyEvent = event.asKeyEvent();
 
             if (keyEvent.key == Keyboard.Key.SPACE) {
+                LOGGER.info("press SPACE");
                 Packet spacePacket = new Packet();
                 spacePacket.append(PacketType.SPACE_BUTTON);
                 PacketReaderWriter.send(socketChannel, spacePacket);
             }
 
             if (keyEvent.key == Keyboard.Key.M) {
+                LOGGER.info("press M");
                 Packet mPacket = new Packet();
                 mPacket.append(PacketType.M_BUTTON);
                 PacketReaderWriter.send(socketChannel, mPacket);

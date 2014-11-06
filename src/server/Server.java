@@ -94,7 +94,8 @@ public class Server extends Thread {
 
         switch (packetType) {
             case INTERVAL_UPDATE:
-                LOGGER.info("handling interval packet: " + (int) packet.get());
+                int intervalId = (int) packet.get();
+                //LOGGER.info("handling interval packet: " + intervalId);
                 break;
             case SPACE_BUTTON:
                 LOGGER.info("handling SPACE button");
