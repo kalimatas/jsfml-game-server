@@ -8,8 +8,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -19,7 +17,6 @@ public class Server extends Thread {
     private volatile boolean isRunning = true;
     private ServerSocketChannel serverSocketChannel;
     private Selector readSelector;
-    private List<SocketChannel> clients = new LinkedList<>();
 
     public Server() throws IOException {
         LOGGER.info("starting server");
@@ -63,12 +60,6 @@ public class Server extends Thread {
 
             clientChannel.configureBlocking(false);
             clientChannel.register(readSelector, SelectionKey.OP_READ);
-
-            // add client to the list
-            clients.add(clientChannel);
-
-            // new client messsage
-            sendBroadcastingMessage("New client " + clientAddress + "!\n");
         }
     }
 
@@ -111,16 +102,6 @@ public class Server extends Thread {
             case M_BUTTON:
                 LOGGER.info("handling M button");
                 break;
-        }
-    }
-
-    private void sendBroadcastingMessage(String message) throws IOException {
-        for (SocketChannel channel : clients) {
-            Packet packet = new Packet();
-            packet.append(PacketType.BROADCAST_MESSAGE);
-            packet.append(message);
-
-            PacketReaderWriter.send(channel, packet);
         }
     }
 }
