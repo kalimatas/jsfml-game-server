@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public class Client {
     private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
 
+    private boolean isConnected = true;
     private SocketChannel socketChannel;
     private Selector readSelector;
     private Clock tickClock = new Clock();
@@ -31,7 +32,14 @@ public class Client {
         socketChannel.register(readSelector, SelectionKey.OP_READ);
     }
 
+    public void close() throws IOException {
+        socketChannel.close();
+        isConnected = false;
+    }
+
     public void update(Time dt) throws IOException {
+        if (!isConnected) return;
+
         readSelector.selectNow();
 
         Set<SelectionKey> readKeys = readSelector.selectedKeys();
